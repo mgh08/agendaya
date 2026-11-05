@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AgendaYa – El Corte Caribe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mar:#0B5E7A; --mar-hondo:#073F52; --mango:#F4B400; --poste:#C8372D;
+  --fondo:#EEF5F6; --superficie:#FFFFFF; --tinta:#14262E; --suave:#5B6E76; --linea:#D5E2E5;
+  --ok:#1E8A5A; --ok-fondo:#E3F4EC; --mal:#B3261E; --mal-fondo:#FBE7E5;
+  --sel:#E2F0F4;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --mar:#5FB8D4; --mar-hondo:#9AD3E5; --mango:#F7C640; --poste:#E2594F;
+    --fondo:#0E1A1F; --superficie:#16262D; --tinta:#E6EFF1; --suave:#9DB0B7; --linea:#2A3E46;
+    --ok:#5CC99A; --ok-fondo:#173A2C; --mal:#F08A82; --mal-fondo:#3D1D1B; --sel:#1D3A45;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --mar:#5FB8D4; --mar-hondo:#9AD3E5; --mango:#F7C640; --poste:#E2594F;
+  --fondo:#0E1A1F; --superficie:#16262D; --tinta:#E6EFF1; --suave:#9DB0B7; --linea:#2A3E46;
+  --ok:#5CC99A; --ok-fondo:#173A2C; --mal:#F08A82; --mal-fondo:#3D1D1B; --sel:#1D3A45;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--fondo);color:var(--tinta);font:16px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;line-height:1.15;margin:0}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--mango);outline-offset:2px}
+
+/* Poste de barbero: el elemento memorable */
+.poste{height:12px;background:repeating-linear-gradient(-45deg,var(--poste) 0 14px,#fff 14px 28px,var(--mar) 28px 42px,#fff 42px 56px)}
+header.top{background:var(--mar-hondo);color:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) header.top{background:#0A2A35}}
+:root[data-theme="dark"] header.top{background:#0A2A35}
+.top-in{max-width:960px;margin:0 auto;padding:18px 20px 0;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.marca h1{font-size:clamp(28px,6vw,40px);font-weight:800;letter-spacing:-.02em}
+.marca p{margin:2px 0 0;color:#CFE6EE;font-size:15px}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;max-width:960px;margin:14px auto 0;padding:0 20px}
+nav.tabs button{background:transparent;border:0;color:#CFE6EE;padding:10px 14px;white-space:nowrap;border-radius:10px 10px 0 0;font-weight:600;cursor:pointer}
+nav.tabs button[aria-selected="true"]{background:var(--fondo);color:var(--tinta)}
+main{max-width:960px;margin:0 auto;padding:24px 20px 120px}
+.vista{display:none}.vista.activa{display:block}
+
+.paso{background:var(--superficie);border:1px solid var(--linea);border-radius:16px;padding:20px;margin-bottom:16px}
+.paso h2{font-size:20px;font-weight:700;display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--mar);color:#fff;font:700 14px Figtree,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .num{color:#0E1A1F}}
+:root[data-theme="dark"] .num{color:#0E1A1F}
+.paso.bloq{opacity:.45;pointer-events:none}
+
+.opciones{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.op{text-align:left;background:var(--superficie);border:2px solid var(--linea);border-radius:12px;padding:12px 14px;cursor:pointer}
+.op:hover{border-color:var(--mar)}
+.op[aria-pressed="true"]{border-color:var(--mar);background:var(--sel)}
+.op strong{display:block;font-size:16px}
+.op span{color:var(--suave);font-size:14px}
+.dias{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
+.dia{flex:0 0 auto;min-width:64px;text-align:center;background:var(--superficie);border:2px solid var(--linea);border-radius:12px;padding:8px 10px;cursor:pointer}
+.dia b{display:block;font-size:20px;font-family:"Bricolage Grotesque",sans-serif}
+.dia small{color:var(--suave)}
+.dia[aria-pressed="true"]{border-color:var(--mar);background:var(--sel)}
+.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.hora{background:var(--superficie);border:2px solid var(--linea);border-radius:10px;padding:9px 0;cursor:pointer;font-weight:600;font-size:15px;white-space:nowrap}
+.hora:disabled{cursor:not-allowed;color:var(--suave);text-decoration:line-through;background:var(--fondo);border-style:dashed}
+.hora[aria-pressed="true"]{background:var(--mar);border-color:var(--mar);color:#fff}
+.vacio{color:var(--suave);margin:0}
+.horas .vacio{grid-column:1/-1}
+
+.campos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.campos{grid-template-columns:1fr}}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+input,select{width:100%;padding:11px 12px;border:2px solid var(--linea);border-radius:10px;background:var(--superficie)}
+input:focus{border-color:var(--mar);outline:none}
+.error{color:var(--mal);font-size:14px;margin-top:4px;min-height:20px}
+
+.barra{position:fixed;left:0;right:0;bottom:0;background:var(--superficie);border-top:1px solid var(--linea);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.barra-in{max-width:920px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.resumen{font-size:14px;color:var(--suave)}
+.resumen b{color:var(--tinta);font-size:16px}
+.btn{background:var(--mango);color:#1A1400;border:0;border-radius:12px;padding:13px 22px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sec{background:transparent;border:2px solid var(--linea);color:var(--tinta)}
+.btn.chico{padding:7px 12px;font-size:14px;border-radius:9px}
+
+.confirmada{background:var(--superficie);border:1px solid var(--linea);border-radius:16px;padding:28px;max-width:520px}
+.confirmada h2{font-size:28px;margin-bottom:6px}
+.ticket{border-top:2px dashed var(--linea);margin-top:18px;padding-top:14px;display:grid;grid-template-columns:auto 1fr;gap:6px 18px}
+.ticket dt{color:var(--suave)}.ticket dd{margin:0;font-weight:600}
+
+/* Agenda */
+.agenda-top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.agenda-top h2{font-size:26px}
+.metricas{display:flex;gap:18px;flex-wrap:wrap;color:var(--suave);font-size:14px;margin-bottom:16px}
+.metricas b{color:var(--tinta);font-size:18px}
+.columnas{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.col{background:var(--superficie);border:1px solid var(--linea);border-radius:16px;padding:16px}
+.col h3{font-size:18px;margin-bottom:10px}
+.cita{border-left:4px solid var(--mar);background:var(--fondo);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.cita.atendida{border-left-color:var(--ok)}
+.cita.noasistio{border-left-color:var(--mal);opacity:.75}
+.cita .h{font-weight:700}
+.cita .s{color:var(--suave);font-size:14px}
+.acciones{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.estado{display:inline-block;font-size:13px;font-weight:600;border-radius:6px;padding:2px 8px;margin-top:6px}
+.estado.ok{background:var(--ok-fondo);color:var(--ok)}
+.estado.mal{background:var(--mal-fondo);color:var(--mal)}
+a.wa{color:var(--mar);font-weight:600;font-size:14px;text-decoration:none;border:2px solid var(--linea);border-radius:9px;padding:5px 10px}
+
+/* Admin */
+.tabla-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:480px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--linea)}
+th{font-size:14px;color:var(--suave);font-weight:600}
+td input{padding:7px 9px}
+.fila-agregar{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-top:12px;align-items:end}
+@media (max-width:560px){.fila-agregar{grid-template-columns:1fr 1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{background:var(--sel);border-radius:20px;padding:6px 8px 6px 14px;display:flex;gap:8px;align-items:center;font-weight:600}
+.chip button{border:0;background:transparent;cursor:pointer;color:var(--suave);font-size:18px;line-height:1}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--tinta);color:var(--fondo);padding:10px 18px;border-radius:10px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.ver{opacity:1}
+@media (prefers-reduced-motion: reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="poste" aria-hidden="true"></div>
+  <div class="top-in">
+    <div class="marca">
+      <h1>El Corte Caribe</h1>
+      <p>Barbería · El Prado, Barranquilla · Reservas con AgendaYa</p>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-vista="reservar">Reservar cita</button>
+    <button role="tab" aria-selected="false" data-vista="agenda">Agenda del día</button>
+    <button role="tab" aria-selected="false" data-vista="admin">Administrar</button>
+  </nav>
+</header>
+
+<main>
+  <!-- RESERVAR -->
+  <section class="vista activa" id="v-reservar">
+    <div id="flujo">
+      <div class="paso" id="p1"><h2><span class="num">1</span>¿Qué servicio quieres?</h2><div class="opciones" id="servicios"></div></div>
+      <div class="paso bloq" id="p2"><h2><span class="num">2</span>¿Con qué barbero?</h2><div class="opciones" id="barberos"></div></div>
+      <div class="paso bloq" id="p3"><h2><span class="num">3</span>Elige día y hora</h2><div class="dias" id="dias"></div><div class="horas" id="horas"></div></div>
+      <div class="paso bloq" id="p4"><h2><span class="num">4</span>Tus datos</h2>
+        <div class="campos">
+          <div><label for="nombre">Nombre</label><input id="nombre" autocomplete="name" placeholder="Ej.: Juan Pérez"><div class="error" id="e-nombre"></div></div>
+          <div><label for="cel">Celular</label><input id="cel" inputmode="numeric" autocomplete="tel" placeholder="300 123 4567"><div class="error" id="e-cel"></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="ok" hidden></div>
+  </section>
+
+  <!-- AGENDA -->
+  <section class="vista" id="v-agenda">
+    <div class="agenda-top">
+      <h2 id="ag-titulo">Agenda</h2>
+      <input type="date" id="ag-fecha" style="max-width:190px" aria-label="Fecha de la agenda">
+    </div>
+    <div class="metricas" id="metricas"></div>
+    <div class="columnas" id="columnas"></div>
+  </section>
+
+  <!-- ADMIN -->
+  <section class="vista" id="v-admin">
+    <div class="paso">
+      <h2>Servicios</h2>
+      <div class="tabla-wrap"><table><thead><tr><th>Servicio</th><th>Duración (min)</th><th>Precio (COP)</th><th></th></tr></thead><tbody id="t-serv"></tbody></table></div>
+      <div class="fila-agregar">
+        <div><label for="n-serv">Nuevo servicio</label><input id="n-serv" placeholder="Ej.: Tinte"></div>
+        <div><label for="n-dur">Duración</label><select id="n-dur"><option>15</option><option selected>30</option><option>45</option><option>60</option></select></div>
+        <div><label for="n-pre">Precio</label><input id="n-pre" inputmode="numeric" placeholder="25000"></div>
+        <button class="btn chico" id="b-serv">Agregar servicio</button>
+      </div>
+    </div>
+    <div class="paso">
+      <h2>Barberos</h2>
+      <div class="chips" id="chips"></div>
+      <div class="fila-agregar" style="grid-template-columns:1fr auto">
+        <div><label for="n-barb">Nuevo barbero</label><input id="n-barb" placeholder="Nombre"></div>
+        <button class="btn chico" id="b-barb">Agregar barbero</button>
+      </div>
+    </div>
+    <div class="paso">
+      <h2>Horario de atención</h2>
+      <div class="campos" style="max-width:420px">
+        <div><label for="h-ini">Abre</label><input type="time" id="h-ini" step="900"></div>
+        <div><label for="h-fin">Cierra</label><input type="time" id="h-fin" step="900"></div>
+      </div>
+      <p style="margin-top:18px"><button class="btn sec chico" id="b-reset">Restablecer datos de ejemplo</button></p>
+    </div>
+  </section>
+</main>
+
+<div class="barra" id="barra">
+  <div class="barra-in">
+    <div class="resumen" id="resumen">Elige un servicio para empezar</div>
+    <button class="btn" id="confirmar" disabled>Confirmar cita</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const CLAVE='agendaya-corte-caribe-v1';
+// Número de prueba: todos los recordatorios se envían aquí para la demo.
+// Para enviarlos al celular de cada cliente, deja esta constante vacía: const WA_DEMO='';
+const WA_DEMO='3054309708';
+const hoyISO=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const sumarDias=(iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const aMin=h=>{const[a,b]=h.split(':').map(Number);return a*60+b};
+const aHora=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const hora12=m=>{let h=Math.floor(m/60),mm=String(m%60).padStart(2,'0');const ap=h>=12?'p. m.':'a. m.';h=h%12||12;return h+':'+mm+' '+ap};
+const pesos=n=>'$'+Number(n).toLocaleString('es-CO');
+const id=()=>Math.random().toString(36).slice(2,9);
+
+function ejemplo(){
+  const h=hoyISO(), m=sumarDias(h,1);
+  return {
+    servicios:[
+      {id:'s1',nombre:'Corte clásico',dur:30,precio:20000},
+      {id:'s2',nombre:'Corte y barba',dur:45,precio:30000},
+      {id:'s3',nombre:'Arreglo de barba',dur:30,precio:15000},
+      {id:'s4',nombre:'Corte infantil',dur:30,precio:15000},
+      {id:'s5',nombre:'Diseño de cejas',dur:15,precio:8000}
+    ],
+    barberos:[{id:'b1',nombre:'Andrés'},{id:'b2',nombre:'Luis'},{id:'b3',nombre:'Jhon'}],
+    horario:{ini:'09:00',fin:'19:00'},
+    citas:[
+      {id:id(),fecha:h,ini:aMin('09:00'),serv:'s1',barb:'b1',cliente:'Kevin Ariza',cel:'3004567812',estado:'atendida'},
+      {id:id(),fecha:h,ini:aMin('09:30'),serv:'s2',barb:'b1',cliente:'Mauricio Polo',cel:'3157894521',estado:'pendiente'},
+      {id:id(),fecha:h,ini:aMin('10:00'),serv:'s1',barb:'b2',cliente:'Sebastián Oñate',cel:'3012223344',estado:'noasistio'},
+      {id:id(),fecha:h,ini:aMin('11:00'),serv:'s3',barb:'b2',cliente:'Rafael Charris',cel:'3208881122',estado:'pendiente'},
+      {id:id(),fecha:h,ini:aMin('15:00'),serv:'s2',barb:'b3',cliente:'Daniel Rada',cel:'3115550909',estado:'pendiente'},
+      {id:id(),fecha:h,ini:aMin('16:00'),serv:'s4',barb:'b1',cliente:'Matías De la Hoz',cel:'3046667788',estado:'pendiente'},
+      {id:id(),fecha:h,ini:aMin('17:30'),serv:'s1',barb:'b3',cliente:'Jorge Barrios',cel:'3184441230',estado:'pendiente'},
+      {id:id(),fecha:m,ini:aMin('10:00'),serv:'s2',barb:'b1',cliente:'Camilo Vargas',cel:'3001239876',estado:'pendiente'}
+    ]
+  };
+}
+let D;
+try{const r=localStorage.getItem(CLAVE);D=r?JSON.parse(r):null}catch(e){D=null}
+if(!D||!D.servicios)D=ejemplo();
+const guardar=()=>{try{localStorage.setItem(CLAVE,JSON.stringify(D))}catch(e){}};
+const serv=i=>D.servicios.find(s=>s.id===i)||{nombre:'Servicio eliminado',dur:30,precio:0};
+const barb=i=>D.barberos.find(b=>b.id===i)||{nombre:'—'};
+const toast=t=>{const e=document.getElementById('toast');e.textContent=t;e.classList.add('ver');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('ver'),2200)};
+
+/* ---------- Pestañas ---------- */
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>irA(b.dataset.vista));
+function irA(v){
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.vista===v));
+  document.querySelectorAll('.vista').forEach(x=>x.classList.toggle('activa',x.id==='v-'+v));
+  document.getElementById('barra').hidden = v!=='reservar' || !document.getElementById('ok').hidden;
+  if(v==='agenda')pintarAgenda(); if(v==='admin')pintarAdmin();
+  // En vistas previas (iframe about:srcdoc) el navegador bloquea replaceState; se ignora sin romper la página.
+  try{history.replaceState(null,'','#'+v)}catch(e){}
+}
+
+/* ---------- Reserva ---------- */
+const R={serv:null,barb:null,fecha:hoyISO(),ini:null};
+function ocupado(barbId,fecha,ini,dur){
+  return D.citas.some(c=>c.barb===barbId&&c.fecha===fecha&&c.estado!=='cancelada'&&ini<c.ini+serv(c.serv).dur&&c.ini<ini+dur);
+}
+function libre(fecha,ini,dur){ // devuelve barbero libre o null
+  if(R.barb&&R.barb!=='any')return ocupado(R.barb,fecha,ini,dur)?null:R.barb;
+  const b=D.barberos.find(b=>!ocupado(b.id,fecha,ini,dur));return b?b.id:null;
+}
+function pintarServicios(){
+  const c=document.getElementById('servicios');c.innerHTML='';
+  D.servicios.forEach(s=>{const b=document.createElement('button');b.className='op';b.setAttribute('aria-pressed',R.serv===s.id);
+    b.innerHTML=`<strong>${s.nombre}</strong><span>${s.dur} min · ${pesos(s.precio)}</span>`;
+    b.onclick=()=>{R.serv=s.id;R.ini=null;actualizar()};c.appendChild(b)});
+}
+function pintarBarberos(){
+  const c=document.getElementById('barberos');c.innerHTML='';
+  [{id:'any',nombre:'Cualquier barbero',sub:'El primero disponible'},...D.barberos.map(b=>({...b,sub:'Barbero'}))].forEach(b=>{
+    const x=document.createElement('button');x.className='op';x.setAttribute('aria-pressed',R.barb===b.id);
+    x.innerHTML=`<strong>${b.nombre}</strong><span>${b.sub}</span>`;x.onclick=()=>{R.barb=b.id;R.ini=null;actualizar()};c.appendChild(x)});
+}
+function pintarDias(){
+  const c=document.getElementById('dias');c.innerHTML='';
+  const nom=['dom','lun','mar','mié','jue','vie','sáb'];
+  for(let i=0;i<10;i++){const f=sumarDias(hoyISO(),i),d=new Date(f+'T12:00:00');
+    if(d.getDay()===0)continue;
+    const b=document.createElement('button');b.className='dia';b.setAttribute('aria-pressed',R.fecha===f);
+    b.innerHTML=`<small>${i===0?'hoy':nom[d.getDay()]}</small><b>${d.getDate()}</b>`;b.onclick=()=>{R.fecha=f;R.ini=null;actualizar()};c.appendChild(b)}
+}
+function pintarHoras(){
+  const c=document.getElementById('horas');c.innerHTML='';
+  if(!R.serv||!R.barb)return;
+  const dur=serv(R.serv).dur,ini=aMin(D.horario.ini),fin=aMin(D.horario.fin);
+  const ahora=new Date(),minAhora=ahora.getHours()*60+ahora.getMinutes();
+  let hay=0;
+  for(let m=ini;m+dur<=fin;m+=15){
+    const pasada=R.fecha===hoyISO()&&m<=minAhora;
+    const b=document.createElement('button');b.className='hora';b.textContent=hora12(m);
+    const ok=!pasada&&libre(R.fecha,m,dur);
+    b.disabled=!ok;if(ok)hay++;
+    b.setAttribute('aria-pressed',R.ini===m);b.title=ok?'Disponible':'No disponible';
+    b.onclick=()=>{R.ini=m;actualizar()};c.appendChild(b);
+  }
+  if(!hay)c.innerHTML='<p class="vacio">'+(R.fecha===hoyISO()&&minAhora>=fin-dur
+    ?'Ya terminó el horario de atención de hoy. Elige otro día.'
+    :'No quedan horas libres este día. Elige otro día o “Cualquier barbero”.')+'</p>';
+}
+function actualizar(){
+  document.getElementById('p2').classList.toggle('bloq',!R.serv);
+  document.getElementById('p3').classList.toggle('bloq',!R.barb);
+  document.getElementById('p4').classList.toggle('bloq',R.ini===null);
+  pintarServicios();pintarBarberos();pintarDias();pintarHoras();
+  const r=document.getElementById('resumen');
+  if(!R.serv)r.textContent='Elige un servicio para empezar';
+  else{const s=serv(R.serv);
+    const bn=R.barb==='any'?'Cualquier barbero':R.barb?barb(R.barb).nombre:'Sin barbero';
+    const d=new Date(R.fecha+'T12:00:00').toLocaleDateString('es-CO',{weekday:'short',day:'numeric',month:'short'});
+    r.innerHTML=`<b>${s.nombre} · ${pesos(s.precio)}</b><br>${bn}${R.ini!==null?' · '+d+', '+hora12(R.ini):''}`}
+  document.getElementById('confirmar').disabled=R.ini===null;
+}
+document.getElementById('confirmar').onclick=()=>{
+  const n=document.getElementById('nombre'),c=document.getElementById('cel');
+  const cel=c.value.replace(/\D/g,'');let bien=true;
+  document.getElementById('e-nombre').textContent=n.value.trim().length<3?'Escribe tu nombre (mínimo 3 letras).':'';
+  document.getElementById('e-cel').textContent=!/^3\d{9}$/.test(cel)?'Escribe un celular de 10 dígitos que empiece por 3.':'';
+  if(n.value.trim().length<3||!/^3\d{9}$/.test(cel)){bien=false;(n.value.trim().length<3?n:c).focus()}
+  if(!bien)return;
+  const dur=serv(R.serv).dur,b=libre(R.fecha,R.ini,dur);
+  if(!b){toast('Esa hora acaba de ocuparse. Elige otra.');R.ini=null;actualizar();return}
+  const cita={id:id(),fecha:R.fecha,ini:R.ini,serv:R.serv,barb:b,cliente:n.value.trim(),cel,estado:'pendiente'};
+  D.citas.push(cita);guardar();
+  const d=new Date(R.fecha+'T12:00:00').toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+  const ok=document.getElementById('ok');
+  ok.innerHTML=`<div class="confirmada"><h2>Cita confirmada</h2><p style="margin:0;color:var(--suave)">Te esperamos, ${cita.cliente.split(' ')[0]}. Llega 5 minutos antes.</p>
+   <dl class="ticket"><dt>Servicio</dt><dd>${serv(cita.serv).nombre}</dd><dt>Barbero</dt><dd>${barb(cita.barb).nombre}</dd>
+   <dt>Fecha</dt><dd>${d}</dd><dt>Hora</dt><dd>${hora12(cita.ini)}</dd><dt>Valor</dt><dd>${pesos(serv(cita.serv).precio)}</dd></dl>
+   <p style="margin-top:20px"><button class="btn" id="otra">Reservar otra cita</button></p></div>`;
+  document.getElementById('flujo').hidden=true;ok.hidden=false;document.getElementById('barra').hidden=true;
+  document.getElementById('otra').onclick=()=>{Object.assign(R,{serv:null,barb:null,fecha:hoyISO(),ini:null});n.value='';c.value='';
+    ok.hidden=true;document.getElementById('flujo').hidden=false;document.getElementById('barra').hidden=false;actualizar();scrollTo(0,0)};
+  scrollTo(0,0);
+};
+
+/* ---------- Agenda ---------- */
+const fAg=document.getElementById('ag-fecha');fAg.value=hoyISO();fAg.onchange=pintarAgenda;
+function pintarAgenda(){
+  const f=fAg.value||hoyISO();
+  const d=new Date(f+'T12:00:00').toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('ag-titulo').textContent=(f===hoyISO()?'Hoy, ':'')+d;
+  const del=D.citas.filter(c=>c.fecha===f);
+  const ing=del.filter(c=>c.estado==='atendida').reduce((a,c)=>a+serv(c.serv).precio,0);
+  document.getElementById('metricas').innerHTML=`<span><b>${del.length}</b> citas</span><span><b>${del.filter(c=>c.estado==='atendida').length}</b> atendidas</span><span><b>${del.filter(c=>c.estado==='noasistio').length}</b> no asistieron</span><span><b>${pesos(ing)}</b> ingresos atendidos</span>`;
+  const cols=document.getElementById('columnas');cols.innerHTML='';
+  D.barberos.forEach(b=>{
+    const lista=del.filter(c=>c.barb===b.id).sort((x,y)=>x.ini-y.ini);
+    const col=document.createElement('div');col.className='col';col.innerHTML=`<h3>${b.nombre}</h3>`;
+    if(!lista.length)col.innerHTML+='<p class="vacio">Sin citas este día.</p>';
+    lista.forEach(c=>{const s=serv(c.serv);
+      const fechaLarga=new Date(c.fecha+'T12:00:00').toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+      const cuando=c.fecha===hoyISO()?`hoy, ${fechaLarga}`:c.fecha===sumarDias(hoyISO(),1)?`mañana, ${fechaLarga}`:fechaLarga;
+      const msg=encodeURIComponent(
+`Hola ${c.cliente.split(' ')[0]} 👋, te escribimos de *El Corte Caribe* para recordarte tu cita:
+
+✂️ *Servicio:* ${s.nombre} (${s.dur} min)
+💈 *Barbero:* ${b.nombre}
+📅 *Fecha:* ${cuando}
+🕐 *Hora:* ${hora12(c.ini)} a ${hora12(c.ini+s.dur)}
+💵 *Valor:* ${pesos(s.precio)}
+📍 *Lugar:* Barbería El Corte Caribe, barrio El Prado, Barranquilla
+
+Te pedimos llegar 5 minutos antes.
+Por favor responde *SÍ* para confirmar tu asistencia o *NO* si necesitas cancelar o cambiar la hora, así le damos el turno a otro cliente.
+
+¡Te esperamos! – Reservas con AgendaYa`);
+      const el=document.createElement('div');el.className='cita '+c.estado;
+      el.innerHTML=`<div class="h">${hora12(c.ini)} – ${hora12(c.ini+s.dur)}</div><div>${c.cliente}</div><div class="s">${s.nombre} · ${c.cel.replace(/(\d{3})(\d{3})(\d{4})/,'$1 $2 $3')}</div>`+
+        (c.estado==='atendida'?'<span class="estado ok">Atendida</span>':c.estado==='noasistio'?'<span class="estado mal">No asistió</span>':
+        `<div class="acciones"><button class="btn chico" data-a="atendida">Atendida</button><button class="btn sec chico" data-a="noasistio">No asistió</button><a class="wa" target="_blank" rel="noopener" href="https://wa.me/57${WA_DEMO||c.cel}?text=${msg}">Recordar por WhatsApp</a></div>`);
+      el.querySelectorAll('[data-a]').forEach(x=>x.onclick=()=>{c.estado=x.dataset.a;guardar();pintarAgenda();toast(x.dataset.a==='atendida'?'Cita marcada como atendida':'Cita marcada como no asistida')});
+      col.appendChild(el)});
+    cols.appendChild(col)});
+}
+
+/* ---------- Admin ---------- */
+function pintarAdmin(){
+  const t=document.getElementById('t-serv');t.innerHTML='';
+  D.servicios.forEach(s=>{const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input value="${s.nombre}" data-k="nombre" aria-label="Nombre"></td><td><input value="${s.dur}" data-k="dur" inputmode="numeric" aria-label="Duración"></td><td><input value="${s.precio}" data-k="precio" inputmode="numeric" aria-label="Precio"></td><td><button class="btn sec chico">Eliminar</button></td>`;
+    tr.querySelectorAll('input').forEach(i=>i.onchange=()=>{const k=i.dataset.k;s[k]=k==='nombre'?i.value:Math.max(5,parseInt(i.value)||0);guardar();toast('Servicio actualizado')});
+    tr.querySelector('button').onclick=()=>{D.servicios=D.servicios.filter(x=>x!==s);guardar();pintarAdmin();toast('Servicio eliminado')};
+    t.appendChild(tr)});
+  const ch=document.getElementById('chips');ch.innerHTML='';
+  D.barberos.forEach(b=>{const e=document.createElement('span');e.className='chip';e.innerHTML=`${b.nombre}<button aria-label="Quitar ${b.nombre}">×</button>`;
+    e.querySelector('button').onclick=()=>{if(D.barberos.length<2){toast('Debe quedar al menos un barbero');return}D.barberos=D.barberos.filter(x=>x!==b);guardar();pintarAdmin()};ch.appendChild(e)});
+  document.getElementById('h-ini').value=D.horario.ini;document.getElementById('h-fin').value=D.horario.fin;
+}
+document.getElementById('b-serv').onclick=()=>{const n=document.getElementById('n-serv'),p=document.getElementById('n-pre');
+  if(!n.value.trim()){n.focus();toast('Escribe el nombre del servicio');return}
+  D.servicios.push({id:id(),nombre:n.value.trim(),dur:+document.getElementById('n-dur').value,precio:parseInt(p.value)||0});n.value='';p.value='';guardar();pintarAdmin();toast('Servicio agregado')};
+document.getElementById('b-barb').onclick=()=>{const n=document.getElementById('n-barb');if(!n.value.trim()){n.focus();return}
+  D.barberos.push({id:id(),nombre:n.value.trim()});n.value='';guardar();pintarAdmin();toast('Barbero agregado')};
+document.getElementById('h-ini').onchange=e=>{D.horario.ini=e.target.value;guardar();toast('Horario actualizado')};
+document.getElementById('h-fin').onchange=e=>{D.horario.fin=e.target.value;guardar();toast('Horario actualizado')};
+document.getElementById('b-reset').onclick=()=>{D=ejemplo();guardar();pintarAdmin();actualizar();toast('Datos de ejemplo restablecidos')};
+
+actualizar();
+const h=location.hash.slice(1);if(['agenda','admin'].includes(h))irA(h);
+window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(['reservar','agenda','admin'].includes(v))irA(v)});
+</script>
+</body>
+</html>
